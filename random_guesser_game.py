@@ -2,6 +2,7 @@ import time
 import os
 import platform
 import random
+import csv
 
 class Player:
     def __init__(self, name, player_id, score):
@@ -24,7 +25,6 @@ SLEEP_TIME_SHORT = 0.75
 SLEEP_TIME_LONG = 1
 
 g_score = 0 #might use later to help track a user's score
-
 g_game_counter = 0
 
 def leaderboard_option():
@@ -123,6 +123,7 @@ def level_one():
                     time.sleep(1)
                     print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                     points = 0
+                    g_score = 0
         except ValueError:
             print(f"Please enter only integer values.")
             print(f"Invalid Attempts: {i}/3")
@@ -130,6 +131,7 @@ def level_one():
                 time.sleep(1)
                 print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                 points = 0
+                g_score = 0
 
 #this is level 2
 def level_two():
@@ -162,6 +164,7 @@ def level_two():
                     time.sleep(1)
                     print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                     points = 0
+                    g_score = 0
         except ValueError:
             print(f"Please enter only integer values.")
             print(f"Invalid Attempts: {i}/5")
@@ -169,6 +172,7 @@ def level_two():
                 time.sleep(1)
                 print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                 points = 0
+                g_score = 0
  
 def level_three():
     print(f"\nThe computer is generating a random number between 1-50: \n")
@@ -200,6 +204,7 @@ def level_three():
                     time.sleep(1)
                     print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                     points = 0
+                    g_score = 0
         except ValueError:
             print(f"Please enter only integer values.")
             print(f"Invalid Attempts: {i}/10")
@@ -207,10 +212,11 @@ def level_three():
                     time.sleep(1)
                     print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                     points = 0
+                    g_score = 0
 
 def level_four():
     print(f"\nThe computer is generating a random number between 1-100: \n")
-        
+    global g_score
     answer = random.randint(1,100)
 
     points = 10
@@ -238,6 +244,7 @@ def level_four():
                     time.sleep(1)
                     print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                     points = 0
+                    g_score = 0
         except ValueError:
             print(f"Please enter only integer values.")
             print(f"Invalid Attempts: {i}/20")
@@ -245,6 +252,7 @@ def level_four():
                     time.sleep(1)
                     print(f"\nAwh! Unfortunately the number was {answer}! Better luck next time!")
                     points = 0
+                    g_score = 0
 
 #this is a helper for the user to input their level to then put this input into game()
 def choice_of_level():
@@ -293,28 +301,41 @@ def options():
         print("    Please only input integer values between [1-6].")
 
 def view_leaderboard():
-    leaderboard = "leaderboard.txt"
+    leaderboard = "leaderboard.csv"
+    labels = ["Player Name: ", "Player ID: ", "Player Score: "]
 
     if not os.path.exists(leaderboard):
         with open(leaderboard, "w") as lead:
             pass
     
     with open(leaderboard, "r") as lead:
-        data = lead.read()
+        data = csv.reader(lead)
         print("\n|-------------|")
         print("| Leaderboard |")
         print("|-------------|\n")
+        for row in data:
+            #format output
+            formatted_output = [f"{label}{value} | " for label, value in zip(labels, row)]
+            
+            for line in formatted_output:
+                csv_row = ','.join(row)
+                print(line, end='')
 
-        print(data)
+            print()
+
 
 def add_to_leaderboard():
     g_name = input("Please enter your name: ")
-    g_id = random.randrange(100000, 999999, 1)
+    player_id = random.randrange(100000, 999999, 1)
 
-    leaderboard = "leaderboard.txt"
+    leaderboard = "leaderboard.csv"
 
-    with open(leaderboard, "a") as lead:
-        lead.write(f"Player Name: {g_name}, Player ID: {g_id}, Player Score: {g_score}\n")
+    with open(leaderboard, "a", newline = '') as lead:
+        #lead.write(f"Player Name: {g_name}, Player ID: {g_id}, Player Score: {g_score}\n")
+        writer = csv.writer(lead)
+        writer.writerow([g_name, player_id, g_score])
+
+
 
 def remove_from_leaderboard():
     view_leaderboard()
@@ -322,7 +343,7 @@ def remove_from_leaderboard():
     found = False
     target_id = input("Please enter your id: ")
 
-    leaderboard = "leaderboard.txt"
+    leaderboard = "leaderboard.csv"
 
     #read all lines
     with open(leaderboard, "r") as lead:
