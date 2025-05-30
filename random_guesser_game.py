@@ -318,7 +318,6 @@ def view_leaderboard():
             formatted_output = [f"{label}{value} | " for label, value in zip(labels, row)]
             
             for line in formatted_output:
-                csv_row = ','.join(row)
                 print(line, end='')
 
             print()
@@ -346,25 +345,21 @@ def remove_from_leaderboard():
     leaderboard = "leaderboard.csv"
 
     #read all lines
-    with open(leaderboard, "r") as lead:
-        lines = lead.readlines()
+    with open(leaderboard, "r", newline='') as lead:
+        reader = csv.reader(lead)
+        rows = list(reader)        
 
     #write everything back but that id
     with open(leaderboard, "w") as lead:
-        for line in lines:
-            parts = line.strip().split(", ") #parse the file
-            player_id = None 
-
-            for part in parts:
-                if part.startswith("Player ID: "):
-                    player_id = part.replace("Player ID: ", "") #replace with nothing
-                    break
-
-            if player_id is not None and player_id == target_id:
+        writer = csv.writer(lead)
+        for row in rows:
+            if len(row) < 2: #malformed row
+                continue
+            player_id = row[1]
+            if player_id == target_id:
                 found = True
                 continue
-            else:
-                lead.write(line)
+            writer.writerow(row)
     
     if found:
         print(f"Player ID: {target_id} was successfully removed.")
