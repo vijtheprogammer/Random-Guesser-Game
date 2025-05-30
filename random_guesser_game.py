@@ -3,10 +3,6 @@ import os
 import platform
 import random
 
-#bug -- once trying to add a score, unfortunately the score does not persist causing it to stay 0
-# fix idea: keep a dictionary of {name : id : score}
-# when a person wants to add to leaderboard, you look up their id and write their row in the file
-
 class Player:
     def __init__(self, name, player_id, score):
         self.name = name
@@ -37,8 +33,11 @@ def leaderboard_option():
     print("2. No")
 
     while True:
-        choice = int(input("\nChoice: "))
-
+        try: 
+            choice = int(input("\nChoice (1 or 2): "))
+        except ValueError:
+            print("Please enter a valid option (1 or 2).\n")
+            continue
         if (choice == 1):
             add_to_leaderboard()
             break
@@ -334,7 +333,7 @@ def remove_from_leaderboard():
         for line in lines:
             parts = line.strip().split(", ") #parse the file
             player_id = None 
-            
+
             for part in parts:
                 if part.startswith("Player ID: "):
                     player_id = part.replace("Player ID: ", "") #replace with nothing
